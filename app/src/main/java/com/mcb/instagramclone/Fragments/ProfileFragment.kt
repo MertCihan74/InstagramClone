@@ -10,10 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.mcb.instagramclone.AccountSettingsActivity
 import com.mcb.instagramclone.Model.User
 import com.mcb.instagramclone.R
@@ -34,9 +31,7 @@ class ProfileFragment : Fragment() {
 
         firebaseUser = FirebaseAuth.getInstance().currentUser!!
         val pref = context?.getSharedPreferences("PREFS", Context.MODE_PRIVATE)
-        if (pref != null) {
-            this.profileId = pref.getString("profileId", "none")!!
-        }
+        profileId = pref?.getString("profileId", "none") ?: "none"
 
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
@@ -57,8 +52,6 @@ class ProfileFragment : Fragment() {
                 "Edit Profile" -> startActivity(Intent(requireContext(), AccountSettingsActivity::class.java))
                 "Follow" -> followUser()
                 "Following" -> unfollowUser()
-
-
             }
         }
 
@@ -172,9 +165,6 @@ class ProfileFragment : Fragment() {
         val usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(profileId)
         usersRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (context == null) {
-                    return
-                }
                 if (dataSnapshot.exists()) {
                     val user = dataSnapshot.getValue(User::class.java)
                     if (user != null) {
